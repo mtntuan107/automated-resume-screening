@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Candidate {
+  id          String    @id @default(uuid())
+  fullName    String    @map("full_name")
+  email       String    
+  birthdate   DateTime?
+  gender      String?   
+  experience  String?
+  address     String?
+
+  skills      String[]  
+  strengths   String[]
+  weaknesses  String[]
+  
+  fitScores   Json?     @default("[]") @map("fit_scores")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  cvUploads   CvUpload[]
+
+  @@map("candidates")
+}
+
+model JobDescription {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  requirements String
+
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  cvUploads    CvUpload[]
+
+  @@map("job_descriptions")
+}
+
+model CvUpload {
+  id          String   @id @default(uuid())
+  fileUrl     String   @map("file_url")
+  hash        String? 
+  
+  status      String   @default("PENDING") 
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  candidateId String   @map("candidate_id")
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  jobId       String   @map("job_id")
+  job         JobDescription @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@map("cv_uploads")
+}
