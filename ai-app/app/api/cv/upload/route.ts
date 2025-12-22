@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing files or job_id" }, { status: 400 });
     }
 
-    // 1. Lấy thông tin Job
+    
     const job = await prisma.jobDescription.findUnique({
       where: { id: jobId },
       select: { title: true, requirements: true, description: true }
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const hash = crypto.createHash("sha256").update(buffer).digest("hex");
 
-      // 2. CHECK HASH: Nếu file y hệt đã nộp vào Job này -> Báo trùng (Skip AI)
+      
       const existingExactUpload = await prisma.cvUpload.findFirst({
         where: { hash: hash, jobId: jobId },
         include: { candidate: true }
@@ -74,7 +74,6 @@ export async function POST(req: NextRequest) {
           continue; 
       }
 
-      // 3. Nếu chưa trùng Hash -> Lưu file & Chạy AI
       const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       await writeFile(path.join(uploadDir, fileName), buffer);
       
@@ -86,7 +85,6 @@ export async function POST(req: NextRequest) {
       const { fit_score } = aiResult.evaluation;
       const fileUrl = `/uploads/${fileName}`;
 
-      // 4. CHECK EMAIL (Xử lý Merge / Duplicate Job)
       const candidate = await prisma.candidate.findFirst({
         where: { email: { equals: email, mode: 'insensitive' } }
       });

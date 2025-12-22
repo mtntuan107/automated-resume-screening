@@ -53,10 +53,10 @@ export default function DuplicateResolverModal({
         <DialogHeader>
           <DialogTitle className="flex items-center text-yellow-700 gap-2">
             <AlertTriangle className="h-5 w-5" />
-            Phát hiện trùng lặp trong cùng Job ({duplicates.length})
+            Detect duplicates within the same job ({duplicates.length})
           </DialogTitle>
           <DialogDescription>
-            Những ứng viên này đã ứng tuyển vào vị trí này trước đó. Bạn muốn làm gì?
+            These candidates have already applied for this position. How would you like to proceed?
           </DialogDescription>
         </DialogHeader>
 
@@ -93,7 +93,7 @@ export default function DuplicateResolverModal({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+                  <DropdownMenuLabel>Action</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onProcess("MERGE", d)} className="cursor-pointer text-green-600">
                     <GitMerge className="mr-2 h-4 w-4" /> Merge

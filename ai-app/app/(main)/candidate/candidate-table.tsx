@@ -5,23 +5,20 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as XLSX from "xlsx"; 
 
-// Import Server Actions
 import {
   getCandidates,
   createCandidate,
   updateCandidate,
-  deleteCandidateContext, // Hàm xóa thông minh
+  deleteCandidateContext,
   getCandidatesForExport, 
   CandidateFormData,
 } from "@/app/api/candidate/route"; 
 
-// Icons
 import {
   MoreHorizontal, Pencil, Trash2, Plus, Loader2, Users, FileText,
   ChevronLeft, ChevronRight, Search, Filter, Download, Briefcase, X
 } from "lucide-react";
 
-// UI Components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +39,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// --- TYPES (Mapping với JSON) ---
 interface FitScoreEntry {
   jobId: string;
   jobTitle: string;
@@ -54,7 +50,7 @@ interface Candidate {
   fullName: string | null;
   email: string | null;
   skills: string[];
-  fitScores: FitScoreEntry[]; // JSON từ DB
+  fitScores: FitScoreEntry[];
   createdAt: Date;
   cvUploads?: { fileUrl: string }[];
 }
@@ -64,7 +60,7 @@ interface CandidateExportItem {
   email: string | null;
   skills: string[];
   createdAt: Date | string;
-  fitScores: unknown; // Prisma JSON trả về thường là unknown hoặc JsonValue
+  fitScores: unknown;
 }
 
 export default function CandidateTableComponent() {
@@ -72,20 +68,17 @@ export default function CandidateTableComponent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
 
-  // Pagination & Filters
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterScore, setFilterScore] = useState("0");
 
-  // Modal
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState<Candidate | null>(null);
   const { register, handleSubmit, reset, setValue } = useForm<CandidateFormData>();
 
-  // --- 1. FETCH DATA ---
   const fetchCandidates = useCallback(async (page: number, search: string, minScore: number) => {
     setIsLoading(true);
     const res = await getCandidates(page, 5, search, minScore);
@@ -116,9 +109,7 @@ export default function CandidateTableComponent() {
     }
   };
 
-  // --- 2. DELETE HANDLER (Logic xóa thông minh) ---
   const handleDeleteContext = async (candidateId: string, jobId: string | null) => {
-     // Nếu có jobId -> Xóa ngữ cảnh. Nếu null -> Xóa vĩnh viễn
      const isContext = !!jobId;
      const confirmMsg = isContext 
         ? "Bạn có chắc muốn gỡ ứng viên khỏi Job này?" 
@@ -140,7 +131,6 @@ export default function CandidateTableComponent() {
      });
   };
 
-  // --- 3. EXPORT EXCEL (Parse JSON ra String) ---
   const handleExportExcel = async () => {
     setIsExporting(true);
     try {
@@ -149,7 +139,7 @@ export default function CandidateTableComponent() {
       if (res.success && res.data.length > 0) {
         const excelData = res.data.map((c: CandidateExportItem) => {
           const scores = (c.fitScores as FitScoreEntry[]) || [];
-          // Format: "React Dev (80%) | Node Dev (50%)"
+          
           const jobSummary = scores.map(s => `${s.jobTitle} (${s.score}%)`).join(" | ");
 
           return {
@@ -166,18 +156,17 @@ export default function CandidateTableComponent() {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Candidates");
         XLSX.writeFile(workbook, `Candidates_Export.xlsx`);
-        toast.success("Export thành công!");
+        toast.success("Export successfully!");
       } else {
-        toast.warning("Không có dữ liệu.");
+        toast.warning("No data.");
       }
     } catch (error) {
-      toast.error("Lỗi Export.");
+      toast.error("Export failure");
     } finally {
       setIsExporting(false);
     }
   };
 
-  // --- 4. CREATE / EDIT HANDLERS ---
   const handleOpenCreate = () => {
     setEditingCandidate(null);
     reset({ fullName: "", email: "", phone: "", skills: "", fitScore: 0 });

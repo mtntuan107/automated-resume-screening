@@ -3,14 +3,12 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-// Định nghĩa kiểu dữ liệu Form
 export interface JobFormData {
   title: string;
   description: string;
   requirements: string;
 }
 
-// 1. GET (Lấy danh sách)
 export async function getJobs() {
   try {
     const jobs = await prisma.jobDescription.findMany({
@@ -22,7 +20,6 @@ export async function getJobs() {
   }
 }
 
-// 2. CREATE
 export async function createJob(data: JobFormData) {
   try {
     await prisma.jobDescription.create({
@@ -39,7 +36,6 @@ export async function createJob(data: JobFormData) {
   }
 }
 
-// 3. UPDATE
 export async function updateJob(id: string, data: JobFormData) {
   try {
     await prisma.jobDescription.update({
@@ -57,7 +53,6 @@ export async function updateJob(id: string, data: JobFormData) {
   }
 }
 
-// 4. DELETE
 export async function deleteJob(id: string) {
   try {
     await prisma.jobDescription.delete({

@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 export async function parseAndScoreCV(cvText: string, jobDescription: string) {
   const model = genAI.getGenerativeModel({ 
     model: "gemini-2.5-flash",
-    generationConfig: { responseMimeType: "application/json" } // Bắt buộc trả về JSON
+    generationConfig: { responseMimeType: "application/json" }
   });
 
   const prompt = `
@@ -21,7 +21,6 @@ export async function parseAndScoreCV(cvText: string, jobDescription: string) {
       "candidate_info": {
         "full_name": "string",
         "email": "string",
-        "phone": "string",
         "dob": "string",
         "gender": "string",
         "address": "string",
